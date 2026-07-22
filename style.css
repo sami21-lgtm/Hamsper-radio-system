@@ -6,269 +6,193 @@
 }
 
 body {
-  background-color: #060b08;
-  color: #38ef7d;
-  height: 100vh;
+  background-color: #050807;
+  color: #00ff66;
   display: flex;
   flex-direction: column;
+  height: 100vh;
   overflow: hidden;
-  padding: 10px;
 }
 
-/* Layout Grid */
+/* Main Grid Layout */
 .dashboard-container {
   display: grid;
-  grid-template-columns: 300px 1fr 300px;
-  gap: 10px;
-  flex: 1;
-  min-height: 0;
+  grid-template-columns: 280px 1fr 280px;
+  height: calc(100vh - 25px);
+  gap: 5px;
+  padding: 5px;
 }
 
-.column {
+/* Common Card Styles */
+.card {
+  background: #0d1410;
+  border: 1px solid #1a2e22;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+.card-title {
+  font-size: 11px;
+  color: #88aa99;
+  border-bottom: 1px solid #1a2e22;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Left Sidebar Styles */
+.sidebar-left, .sidebar-right {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   overflow-y: auto;
 }
 
-.card {
-  background: #0a140e;
-  border: 1px solid #1c3823;
-  border-radius: 4px;
-  padding: 12px;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.center-content {
-  align-items: center;
-}
-
-.full-width {
-  width: 100%;
-  text-align: left;
-}
-
-/* Utility Colors */
-.text-white { color: #ffffff; }
-.text-green { color: #22c55e; }
-.text-cyan { color: #38bdf8; }
-.text-yellow { color: #eab308; }
-.text-purple { color: #a855f7; }
-.text-red { color: #ef4444; }
-.text-muted { color: #64748b; }
-
-/* Clock Card */
-.clock-box {
-  border-bottom: 1px dashed #1c3823;
-  padding-bottom: 8px;
-}
-.clock-title {
-  font-size: 0.75rem;
-  color: #22c55e;
-  letter-spacing: 1px;
-}
-.clock-time {
-  font-size: 2.2rem;
-  color: #ffffff;
+.time-box {
+  font-size: 22px;
   font-weight: bold;
-  letter-spacing: 2px;
-}
-.clock-date {
-  font-size: 0.85rem;
-  color: #94a3b8;
+  color: #ffffff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
-/* Grid Info Rows */
+.time-label {
+  font-size: 10px;
+  color: #00ff66;
+}
+
 .info-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  padding: 2px 0;
+  margin-bottom: 4px;
+  font-size: 12px;
 }
-.highlight-border {
-  border-bottom: 1px solid #1c3823;
-  padding-bottom: 4px;
-}
-.info-label { color: #22c55e; }
-.info-val { color: #ffffff; font-weight: bold; }
 
-/* Weather Section */
-.weather-container {
+.info-label {
+  color: #88aa99;
+}
+
+.info-val {
+  color: #00ccff;
+  font-weight: bold;
+}
+
+/* Unit Switch Buttons (°C / °F) */
+.unit-toggle {
+  display: flex;
+  gap: 2px;
+}
+
+.unit-btn {
+  background: #14221a;
+  border: 1px solid #1a2e22;
+  color: #88aa99;
+  font-size: 10px;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.unit-btn.active {
+  background: #00ff66;
+  color: #000;
+  border-color: #00ff66;
+}
+
+/* Center Map Styles */
+.map-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#map {
+  flex: 1;
+  width: 100%;
+  background-color: #080c0a;
+  border-radius: 4px;
+  border: 1px solid #1a2e22;
+  cursor: crosshair;
+}
+
+.map-bottom-bar {
+  height: 35px;
+  background: #0d1410;
+  border: 1px solid #1a2e22;
+  margin-top: 5px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 10px;
+  font-size: 11px;
 }
-.weather-main {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+
+.badge {
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: bold;
+  margin-right: 4px;
+  font-size: 10px;
 }
-.temp-big {
-  font-size: 2rem;
+.badge-cw { background: #336699; color: #fff; }
+.badge-ssb { background: #cc3333; color: #fff; }
+.badge-ft8 { background: #00aa66; color: #fff; }
+.badge-fm { background: #cc9900; color: #fff; }
+
+/* Earth / Solar Image Style */
+.earth-container {
+  width: 120px;
+  height: 120px;
+  margin: 5px auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #ffaa00;
+  box-shadow: 0 0 12px rgba(255, 170, 0, 0.4);
+}
+
+.earth-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Right Sidebar Stats Grid */
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  text-align: center;
+}
+
+.stat-box {
+  background: #080c0a;
+  padding: 8px;
+  border: 1px solid #1a2e22;
+  border-radius: 3px;
+}
+
+.stat-val {
+  font-size: 18px;
   color: #ffffff;
   font-weight: bold;
 }
-.temp-unit {
-  font-size: 1rem;
-  color: #22c55e;
-}
-.weather-desc {
-  font-size: 0.75rem;
-  color: #cbd5e1;
-}
-.weather-details {
-  text-align: right;
-  font-size: 0.75rem;
-}
 
-/* Map Section */
-.map-card {
-  position: relative;
-  padding: 0;
-  overflow: hidden;
-}
-#map {
-  width: 100%;
-  height: 100%;
-  background: #050a07;
-}
-
-/* Map Legend Overlay */
-.map-legend {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  background: rgba(8, 16, 11, 0.9);
-  border: 1px solid #1c3823;
-  padding: 8px;
-  border-radius: 4px;
-  z-index: 1000;
-  font-size: 0.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-}
-.legend-group {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.badge {
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-size: 0.7rem;
-  color: #fff;
-}
-.bg-blue { background: #3b82f6; }
-.bg-red { background: #ef4444; }
-.bg-green { background: #10b981; }
-.bg-amber { background: #f59e0b; }
-
-.c-160m { color: #0ea5e9; }
-.c-80m { color: #a855f7; }
-.c-40m { color: #22c55e; }
-.c-20m { color: #eab308; }
-.c-10m { color: #ef4444; }
-
-/* Solar Section */
-.solar-img-container {
-  text-align: center;
-  margin-top: 6px;
-}
-.solar-img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 2px solid #eab308;
-  box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
-  object-fit: cover;
-}
-.dropdown-select {
-  background: #0a140e;
-  color: #4ade80;
-  border: 1px solid #1c3823;
-  padding: 4px 8px;
-  width: 100%;
-  font-family: inherit;
-  border-radius: 3px;
-  margin-top: 8px;
-}
-
-.solar-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
-  margin-top: 8px;
-  text-align: center;
-}
-
-/* Gauges Grid */
-.gauge-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  text-align: center;
-  margin-top: 5px;
-}
-.gauge-box {
-  border: 1px solid #1c3823;
-  padding: 6px 2px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
-}
-.gauge-val {
-  font-size: 1.2rem;
-  color: #4ade80;
-  font-weight: bold;
-}
-.gauge-lbl {
-  font-size: 0.65rem;
-  color: #94a3b8;
-}
-
-/* Arc Gauge SVG */
-.arc-gauge {
-  width: 70px;
-  height: 40px;
-  margin: 0 auto;
-}
-
-/* Bottom News/Alert Ticker */
+/* Bottom Ticker */
 .ticker-bar {
-  margin-top: 10px;
-  background: #0a140e;
-  border: 1px solid #1c3823;
-  height: 36px;
+  height: 25px;
+  background: #080c0a;
+  border-top: 1px solid #1a2e22;
+  color: #00ff66;
+  font-size: 11px;
   display: flex;
   align-items: center;
-  overflow: hidden;
   padding: 0 10px;
-}
-.ticker-label {
-  background: #1c3823;
-  color: #4ade80;
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 0.75rem;
-  margin-right: 10px;
   white-space: nowrap;
-}
-.ticker-text {
-  white-space: nowrap;
-  animation: ticker 30s linear infinite;
-  font-size: 0.85rem;
-  color: #cbd5e1;
+  overflow: hidden;
 }
 
-@keyframes ticker {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+.leaflet-container {
+  background: #080c0a !important;
 }
