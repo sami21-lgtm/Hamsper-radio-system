@@ -88,9 +88,30 @@
 
     <!-- CENTER MAP PANEL -->
     <div class="map-container">
-      <!-- Search Overlay Box -->
+      <!-- Search Overlay Box with Country Selection Dropdown -->
       <div class="map-search-box">
-        <input type="text" id="location-search" placeholder="Type Country or City..." onkeydown="if(event.key==='Enter') doSearch()" />
+        <input type="text" id="location-search" list="country-list" placeholder="Select or type country/city..." onkeydown="if(event.key==='Enter') doSearch()" />
+        
+        <!-- Dropdown Options List -->
+        <datalist id="country-list">
+          <option value="Japan"></option>
+          <option value="Bangladesh"></option>
+          <option value="United States"></option>
+          <option value="Germany"></option>
+          <option value="United Kingdom"></option>
+          <option value="India"></option>
+          <option value="Australia"></option>
+          <option value="Canada"></option>
+          <option value="China"></option>
+          <option value="Brazil"></option>
+          <option value="France"></option>
+          <option value="Italy"></option>
+          <option value="Saudi Arabia"></option>
+          <option value="United Arab Emirates"></option>
+          <option value="Russia"></option>
+          <option value="South Korea"></option>
+        </datalist>
+
         <button id="search-btn" onclick="doSearch()">SEARCH</button>
       </div>
 
