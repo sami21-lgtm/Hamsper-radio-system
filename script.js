@@ -1,5 +1,5 @@
-// Global State
-let currentTempCelsius = 23.3; // Default 74°F
+// Global Weather State
+let currentTempCelsius = 23.3; // Default
 let currentUnit = 'F';
 
 // -------------------------------------------------------------
@@ -42,7 +42,7 @@ function getMaidenhead(lat, lon) {
 }
 
 // -------------------------------------------------------------
-// 3. LEAFLET MAP INITIALIZATION & AUTO RESIZE FIX
+// 3. LEAFLET MAP INITIALIZATION & AUTO RESIZE
 // -------------------------------------------------------------
 const homeLat = 33.9581;
 const homeLng = -84.2658;
@@ -52,19 +52,17 @@ const map = L.map('map', {
   attributionControl: false
 }).setView([20, 0], 2);
 
-// CartoDB Dark Matter Base Tiles
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 18,
   subdomains: 'abcd'
 }).addTo(map);
 
-// Fix Leaflet container size recalculation after render
 setTimeout(() => {
   map.invalidateSize();
 }, 250);
 
 // Markers
-const homeMarker = L.circleMarker([homeLat, homeLng], {
+L.circleMarker([homeLat, homeLng], {
   color: '#ff3333',
   fillColor: '#ff3333',
   fillOpacity: 1,
@@ -86,7 +84,38 @@ let connectionLine = L.polyline([[homeLat, homeLng], [51.505, -0.09]], {
 }).addTo(map);
 
 // -------------------------------------------------------------
-// 4. WEATHER & LOCATION UPDATE LOGIC
+// 4. COUNTRY / LOCATION SEARCH LOGIC (OSM Geocoding)
+// -------------------------------------------------------------
+function doSearch() {
+  const query = document.getElementById('location-search').value.trim();
+  if (!query) return;
+
+  const btn = document.getElementById('search-btn');
+  btn.innerText = "FINDING...";
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(data => {
+      btn.innerText = "SEARCH";
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        
+        // Pan map and update dashboard
+        map.setView([lat, lon], 5);
+        updateLocation(lat, lon);
+      } else {
+        alert('Country or City not found!');
+      }
+    })
+    .catch(() => {
+      btn.innerText = "SEARCH";
+      alert('Search failed. Please try again.');
+    });
+}
+
+// -------------------------------------------------------------
+// 5. WEATHER & LOCATION UPDATE LOGIC
 // -------------------------------------------------------------
 function fetchWeather(lat, lng) {
   document.getElementById('temp-val').innerText = "--°" + currentUnit;
@@ -100,7 +129,7 @@ function fetchWeather(lat, lng) {
         const wind = Math.round(data.current_weather.windspeed);
         
         document.getElementById('wind-val').innerText = `${wind} km/h`;
-        document.getElementById('humidity-val').innerText = `${Math.floor(Math.random() * 25) + 65}%`; // Realistic Humidity
+        document.getElementById('humidity-val').innerText = `${Math.floor(Math.random() * 25) + 65}%`;
         document.getElementById('weather-desc').innerText = getWeatherText(data.current_weather.weathercode);
         
         renderTemp();
@@ -135,7 +164,6 @@ function setUnit(unit) {
   renderTemp();
 }
 
-// Update Master Location Data
 function updateLocation(lat, lng) {
   targetMarker.setLatLng([lat, lng]);
   connectionLine.setLatLngs([[homeLat, homeLng], [lat, lng]]);
@@ -167,10 +195,10 @@ function updateLocation(lat, lng) {
   fetchWeather(lat, lng);
 }
 
-// Tap Event
+// Map Tap Listener
 map.on('click', function(e) {
   updateLocation(e.latlng.lat, e.latlng.lng);
 });
 
-// Default Load (Georgia, USA)
+// Initial Load
 updateLocation(homeLat, homeLng);
