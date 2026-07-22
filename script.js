@@ -1,173 +1,188 @@
-// ==========================================
-// 1. LIVE CLOCKS (UTC & LOCAL)
-// ==========================================
+// Global Weather State
+let currentTempCelsius = null;
+let currentWind = null;
+let currentUnit = 'C'; // 'C' or 'F'
+
+// -------------------------------------------------------------
+// 1. CLOCK LOGIC (UTC & Local Time)
+// -------------------------------------------------------------
 function updateClocks() {
   const now = new Date();
-  const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
-
+  
   // UTC Time
-  const utcHours = String(now.getUTCHours()).padStart(2, '0');
-  const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-  const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-  document.getElementById('utc-time').textContent = `${utcHours}:${utcMinutes}:${utcSeconds}`;
-  document.getElementById('utc-date').textContent = now.toLocaleDateString('en-US', { ...dateOptions, timeZone: 'UTC' });
-
+  document.getElementById('utc-time').innerText = now.toISOString().substr(11, 8);
+  document.getElementById('utc-date').innerText = now.toUTCString().substr(0, 11);
+  
   // Local Time
-  const localHours = String(now.getHours()).padStart(2, '0');
-  const localMinutes = String(now.getMinutes()).padStart(2, '0');
-  const localSeconds = String(now.getSeconds()).padStart(2, '0');
-  document.getElementById('local-time').textContent = `${localHours}:${localMinutes}:${localSeconds}`;
-  document.getElementById('local-date').textContent = now.toLocaleDateString('en-US', dateOptions);
+  document.getElementById('local-time').innerText = now.toTimeString().substr(0, 8);
+  document.getElementById('local-date').innerText = now.toDateString().substr(0, 10);
 }
-
 setInterval(updateClocks, 1000);
 updateClocks();
 
-// ==========================================
-// 2. LIVE WEATHER API (Open-Meteo - Free, No Key)
-// Location: GA, USA (33.9501°N, 84.2650°W)
-// ==========================================
-async function fetchWeather() {
-  const lat = 33.9501;
-  const lon = -84.2650;
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`;
+// -------------------------------------------------------------
+// 2. MAIDENHEAD GRID LOCATOR CALCULATOR
+// -------------------------------------------------------------
+function getMaidenhead(lat, lon) {
+  let l1 = "ABCDEFGHIJKLMNOPQR";
+  let l2 = "abcdefghijklmnopqrstuvwx";
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
+  lon = lon + 180;
+  lat = lat + 90;
 
-    const current = data.current;
-    document.getElementById('temp-val').textContent = Math.round(current.temperature_2m);
-    document.getElementById('humidity-val').textContent = `${current.relative_humidity_2m}%`;
-    document.getElementById('wind-val').textContent = `${Math.round(current.wind_speed_10m)} mph`;
+  let fieldLon = Math.floor(lon / 20);
+  let fieldLat = Math.floor(lat / 10);
 
-    // Simple Weather Code mapping
-    const code = current.weather_code;
-    let condition = "Clear Sky";
-    let icon = "☀️";
+  let squareLon = Math.floor((lon % 20) / 2);
+  let squareLat = Math.floor((lat % 10) / 1);
 
-    if (code >= 1 && code <= 3) { condition = "Partly Cloudy"; icon = "⛅"; }
-    else if (code >= 51 && code <= 67) { condition = "Light Rain"; icon = "🌧️"; }
-    else if (code >= 80 && code <= 99) { condition = "Showers/Storm"; icon = "⛈️"; }
+  let subsquareLon = Math.floor(((lon % 20) % 2) * 12);
+  let subsquareLat = Math.floor(((lat % 10) % 1) * 24);
 
-    document.getElementById('weather-condition').textContent = condition;
-    document.getElementById('weather-icon').textContent = icon;
+  return l1[fieldLon] + l1[fieldLat] + squareLon + squareLat + l2[subsquareLon] + l2[subsquareLat];
+}
 
-  } catch (err) {
-    console.error("Error fetching weather:", err);
-    document.getElementById('weather-condition').textContent = "Weather Unavailable";
+// -------------------------------------------------------------
+// 3. WEATHER API (Open-Meteo Free API Integration)
+// -------------------------------------------------------------
+function fetchRealWeather(lat, lng) {
+  document.getElementById('temp-val').innerText = "--°" + currentUnit;
+  document.getElementById('weather-desc').innerText = "Updating...";
+
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`;
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.current_weather) {
+        currentTempCelsius = data.current_weather.temperature;
+        currentWind = data.current_weather.windspeed;
+        const code = data.current_weather.weathercode;
+
+        document.getElementById('wind-val').innerText = `${currentWind} km/h`;
+        document.getElementById('weather-desc').innerText = getWeatherCondition(code);
+        
+        renderTemperature();
+      }
+    })
+    .catch(() => {
+      document.getElementById('weather-desc').innerText = "Unavailable";
+    });
+}
+
+// Convert WMO Weather Codes to Human Readable Text
+function getWeatherCondition(code) {
+  const conditions = {
+    0: 'Clear Sky',
+    1: 'Mainly Clear', 2: 'Partly Cloudy', 3: 'Overcast',
+    45: 'Foggy', 48: 'Depositing Rime Fog',
+    51: 'Light Drizzle', 53: 'Moderate Drizzle', 55: 'Dense Drizzle',
+    61: 'Slight Rain', 63: 'Moderate Rain', 65: 'Heavy Rain',
+    71: 'Slight Snow', 73: 'Moderate Snow', 75: 'Heavy Snow',
+    80: 'Rain Showers', 81: 'Moderate Showers', 82: 'Violent Showers',
+    95: 'Thunderstorm'
+  };
+  return conditions[code] || 'Clear';
+}
+
+// Render Temp based on selected unit (°C or °F)
+function renderTemperature() {
+  if (currentTempCelsius === null) return;
+
+  if (currentUnit === 'C') {
+    document.getElementById('temp-val').innerText = `${Math.round(currentTempCelsius)}°C`;
+  } else {
+    const tempF = (currentTempCelsius * 9/5) + 32;
+    document.getElementById('temp-val').innerText = `${Math.round(tempF)}°F`;
   }
 }
 
-fetchWeather();
-setInterval(fetchWeather, 300000); // 5 মিনিট পর পর আপডেট হবে
-
-// ==========================================
-// 3. LIVE SPACE WEATHER & KP INDEX API (NOAA SWPC)
-// ==========================================
-async function fetchSolarData() {
-  const kpUrl = "https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json";
-
-  try {
-    const response = await fetch(kpUrl);
-    const data = await response.json();
-    
-    // Get last valid Kp index value from array
-    const latestEntry = data[data.length - 1];
-    const kpIndex = latestEntry[1];
-
-    document.getElementById('kp-val').textContent = kpIndex;
-    document.getElementById('k-gauge-val').textContent = kpIndex;
-
-    // Change Kp color dynamically based on storm levels
-    const kpElement = document.getElementById('kp-val');
-    if (kpIndex >= 5) kpElement.style.color = '#ef4444'; // Red (Geomagnetic Storm)
-    else if (kpIndex >= 3) kpElement.style.color = '#eab308'; // Yellow
-    else kpElement.style.color = '#22c55e'; // Green
-
-  } catch (err) {
-    console.error("Error fetching solar data:", err);
-  }
+// Unit Switch Handler
+function setUnit(unit) {
+  currentUnit = unit;
+  document.getElementById('btn-c').classList.toggle('active', unit === 'C');
+  document.getElementById('btn-f').classList.toggle('active', unit === 'F');
+  renderTemperature();
 }
 
-fetchSolarData();
-setInterval(fetchSolarData, 600000); // ১০ মিনিট পর পর আপডেট হবে
+// -------------------------------------------------------------
+// 4. MAP INITIALIZATION & INTERACTION
+// -------------------------------------------------------------
+const homeLat = 23.8103; // Default Location (e.g. Bangladesh / Home)
+const homeLng = 90.4125;
 
-// Dropdown Change Event for NASA SDO Live Image
-document.getElementById('sdo-select').addEventListener('change', function(e) {
-  const imgFileName = e.target.value;
-  document.getElementById('sdo-img').src = `https://sdo.gsfc.nasa.gov/assets/img/latest/${imgFileName}`;
-});
-
-// ==========================================
-// 4. LIVE NOAA SWPC ALERTS TICKER API
-// ==========================================
-async function fetchNOAAAlerts() {
-  const alertUrl = "https://services.swpc.noaa.gov/products/alerts.json";
-
-  try {
-    const response = await fetch(alertUrl);
-    const data = await response.json();
-
-    if (data && data.length > 0) {
-      // Extract last 3 latest alerts
-      const recentAlerts = data.slice(-3).map(a => a.message.split('\n')[0]).join('  ||  ');
-      document.getElementById('alert-ticker').textContent = recentAlerts;
-    }
-  } catch (err) {
-    console.error("Error fetching alerts:", err);
-    document.getElementById('alert-ticker').textContent = "Active DXpeditions, current solar conditions, and NOAA SWPC live tracking operational.";
-  }
-}
-
-fetchNOAAAlerts();
-
-// ==========================================
-// 5. INTERACTIVE MAP (Leaflet.js)
-// ==========================================
 const map = L.map('map', {
-  center: [30, -40],
-  zoom: 3,
   zoomControl: true,
   attributionControl: false
-});
+}).setView([20, 0], 2);
 
-// Dark Theme Basemap Tiles (CartoDB Dark Matter)
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  maxZoom: 19,
+  maxZoom: 18,
   subdomains: 'abcd'
 }).addTo(map);
 
-// Live Spots / Contacts Array
-const spots = [
-  { coords: [33.9501, -84.2650], label: "NOWRL (Home Base)", color: "#ef4444" },
-  { coords: [48.8566, 2.3522], label: "EU Spot: Paris (20m FT8)", color: "#38bdf8" },
-  { coords: [51.5074, -0.1278], label: "EU Spot: London (40m CW)", color: "#22c55e" },
-  { coords: [-23.5505, -46.6333], label: "SA Spot: Sao Paulo (10m SSB)", color: "#eab308" }
-];
+// Home Base Red Marker
+L.circleMarker([homeLat, homeLng], {
+  color: '#ff3333',
+  fillColor: '#ff3333',
+  fillOpacity: 1,
+  radius: 6
+}).addTo(map);
 
-// Add Markers
-spots.forEach(spot => {
-  L.circleMarker(spot.coords, {
-    radius: 6,
-    color: spot.color,
-    fillColor: spot.color,
-    fillOpacity: 0.8
-  }).addTo(map).bindPopup(`<b>${spot.label}</b>`);
+// Clicked Target Blue Marker
+let targetMarker = L.circleMarker([homeLat, homeLng], {
+  color: '#00ccff',
+  fillColor: '#00ccff',
+  fillOpacity: 1,
+  radius: 6
+}).addTo(map);
+
+// Red Line Connector
+let connectionLine = L.polyline([[homeLat, homeLng], [homeLat, homeLng]], {
+  color: '#ff3333',
+  weight: 1.5,
+  dashArray: '4, 4',
+  opacity: 0.8
+}).addTo(map);
+
+// Master Function to update map & fetch details on tap
+function updateDashboardLocation(lat, lng) {
+  // Update Marker & Line
+  targetMarker.setLatLng([lat, lng]);
+  connectionLine.setLatLngs([[homeLat, homeLng], [lat, lng]]);
+
+  // Update Coordinates & Maidenhead Grid
+  const latDir = lat >= 0 ? 'N' : 'S';
+  const lngDir = lng >= 0 ? 'E' : 'W';
+  document.getElementById('coords-val').innerText = `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lng).toFixed(4)}°${lngDir}`;
+  document.getElementById('grid-val').innerText = getMaidenhead(lat, lng);
+
+  // Reverse Geocoding (Fetch Country / City)
+  document.getElementById('qth-val').innerText = "Locating...";
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.address) {
+        const addr = data.address;
+        const city = addr.city || addr.town || addr.state || addr.county || "Ocean / Remote";
+        const country = addr.country || "";
+        document.getElementById('qth-val').innerText = country ? `${city}, ${country}` : city;
+      } else {
+        document.getElementById('qth-val').innerText = "Ocean / Remote";
+      }
+    })
+    .catch(() => {
+      document.getElementById('qth-val').innerText = "Selected Location";
+    });
+
+  // Fetch Real Weather for Tapped Location
+  fetchRealWeather(lat, lng);
+}
+
+// Listen for Map Click / Tap Events
+map.on('click', function(e) {
+  updateDashboardLocation(e.latlng.lat, e.latlng.lng);
 });
 
-// Draw Radio Propagation Signal Lines
-const signalLines = [
-  [[33.9501, -84.2650], [48.8566, 2.3522]],
-  [[33.9501, -84.2650], [-23.5505, -46.6333]]
-];
-
-signalLines.forEach(line => {
-  L.polyline(line, {
-    color: '#ef4444',
-    weight: 1.5,
-    opacity: 0.7,
-    dashArray: '5, 5'
-  }).addTo(map);
-});
-
+// Initial Load
+updateDashboardLocation(homeLat, homeLng);
