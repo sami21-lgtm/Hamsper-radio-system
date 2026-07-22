@@ -5,30 +5,30 @@
   font-family: 'Share Tech Mono', monospace;
 }
 
-body {
+html, body {
+  height: 100%;
+  width: 100%;
   background-color: #050807;
   color: #00ff66;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
   overflow: hidden;
 }
 
-/* Main Grid Layout */
+/* Dashboard Layout Fix */
 .dashboard-container {
   display: grid;
-  grid-template-columns: 280px 1fr 280px;
+  grid-template-columns: 260px 1fr 270px;
   height: calc(100vh - 25px);
+  width: 100vw;
   gap: 5px;
   padding: 5px;
 }
 
-/* Common Card Styles */
+/* Card General Styling */
 .card {
   background: #0d1410;
   border: 1px solid #1a2e22;
-  border-radius: 4px;
-  padding: 10px;
+  border-radius: 3px;
+  padding: 8px 10px;
   margin-bottom: 5px;
 }
 
@@ -37,35 +37,55 @@ body {
   color: #88aa99;
   border-bottom: 1px solid #1a2e22;
   padding-bottom: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
-/* Left Sidebar Styles */
+.card-title-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #88aa99;
+  border-bottom: 1px solid #1a2e22;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+/* Left Sidebar Elements */
 .sidebar-left, .sidebar-right {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
-.time-box {
-  font-size: 22px;
-  font-weight: bold;
-  color: #ffffff;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-}
-
-.time-label {
+.label-green {
   font-size: 10px;
   color: #00ff66;
+}
+
+.time-main {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.time-local {
+  color: #00ccff;
+}
+
+.date-sub {
+  font-size: 10px;
+  color: #88aa99;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .info-label {
@@ -77,7 +97,25 @@ body {
   font-weight: bold;
 }
 
-/* Unit Switch Buttons (°C / °F) */
+.sun-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed #1a2e22;
+  font-size: 10px;
+}
+
+.sun-label {
+  color: #88aa99;
+}
+
+.sun-time {
+  color: #ffaa00;
+  font-weight: bold;
+}
+
+/* Weather UI */
 .unit-toggle {
   display: flex;
   gap: 2px;
@@ -87,110 +125,206 @@ body {
   background: #14221a;
   border: 1px solid #1a2e22;
   color: #88aa99;
-  font-size: 10px;
-  padding: 2px 6px;
+  font-size: 9px;
+  padding: 1px 5px;
   cursor: pointer;
-  border-radius: 3px;
-  font-weight: bold;
+  border-radius: 2px;
 }
 
 .unit-btn.active {
   background: #00ff66;
   color: #000;
   border-color: #00ff66;
+  font-weight: bold;
 }
 
-/* Center Map Styles */
+.weather-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.weather-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.weather-icon {
+  font-size: 22px;
+}
+
+.temp-text {
+  font-size: 24px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.weather-right {
+  text-align: right;
+  font-size: 10px;
+  color: #88aa99;
+}
+
+.weather-desc {
+  color: #00ccff;
+  font-weight: bold;
+}
+
+.val-white {
+  color: #fff;
+}
+
+/* Center Map Fixes */
 .map-container {
-  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0; /* Important for flex child in CSS Grid */
+  min-width: 0;
 }
 
 #map {
   flex: 1;
   width: 100%;
+  height: 100%;
   background-color: #080c0a;
-  border-radius: 4px;
   border: 1px solid #1a2e22;
-  cursor: crosshair;
+  border-radius: 3px;
+  min-height: 250px;
 }
 
 .map-bottom-bar {
-  height: 35px;
+  height: 30px;
   background: #0d1410;
   border: 1px solid #1a2e22;
-  margin-top: 5px;
+  margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
-  font-size: 11px;
+  padding: 0 8px;
+  font-size: 10px;
 }
 
 .badge {
-  padding: 2px 6px;
+  padding: 2px 5px;
   border-radius: 2px;
   font-weight: bold;
-  margin-right: 4px;
-  font-size: 10px;
+  font-size: 9px;
+  margin-right: 2px;
 }
 .badge-cw { background: #336699; color: #fff; }
 .badge-ssb { background: #cc3333; color: #fff; }
 .badge-ft8 { background: #00aa66; color: #fff; }
 .badge-fm { background: #cc9900; color: #fff; }
 
-/* Earth / Solar Image Style */
-.earth-container {
-  width: 120px;
-  height: 120px;
-  margin: 5px auto;
+.bands-grp {
+  display: flex;
+  gap: 3px;
+}
+
+.band-item {
+  padding: 1px 4px;
+  color: #fff;
+  font-size: 9px;
+  border-radius: 2px;
+}
+
+/* Right Sidebar UI */
+.sun-circle-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.sun-circle {
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
-  overflow: hidden;
+  background: radial-gradient(circle, #ffe600 0%, #aa4400 70%, #000 100%);
   border: 2px solid #ffaa00;
-  box-shadow: 0 0 12px rgba(255, 170, 0, 0.4);
+  box-shadow: 0 0 12px rgba(255, 170, 0, 0.5);
 }
 
-.earth-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.sdo-caption {
+  font-size: 9px;
+  color: #88aa99;
 }
 
-/* Right Sidebar Stats Grid */
 .grid-2x2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  gap: 4px;
   text-align: center;
 }
 
 .stat-box {
   background: #080c0a;
-  padding: 8px;
+  padding: 6px;
   border: 1px solid #1a2e22;
-  border-radius: 3px;
+  border-radius: 2px;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: #88aa99;
 }
 
 .stat-val {
-  font-size: 18px;
-  color: #ffffff;
+  font-size: 16px;
   font-weight: bold;
 }
 
-/* Bottom Ticker */
-.ticker-bar {
-  height: 25px;
-  background: #080c0a;
-  border-top: 1px solid #1a2e22;
-  color: #00ff66;
-  font-size: 11px;
+/* Propagation Gauges */
+.prop-gauges {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 5px;
+}
+
+.gauge-box {
+  text-align: center;
+}
+
+.gauge-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  padding: 0 10px;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  margin: 0 auto 3px auto;
+}
+
+.gauge-green { border: 2px solid #00ff66; color: #00ff66; }
+.gauge-blue { border: 2px solid #00ccff; color: #00ccff; }
+.gauge-red { border: 2px solid #ffaa00; color: #ffaa00; }
+
+.gauge-label {
+  font-size: 9px;
+  color: #88aa99;
+}
+
+/* Ticker Bar */
+.ticker-bar {
+  height: 20px;
+  background: #080c0a;
+  border-top: 1px solid #1a2e22;
+  color: #88aa99;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.ticker-sep {
+  color: #1a2e22;
+  margin: 0 8px;
 }
 
 .leaflet-container {
