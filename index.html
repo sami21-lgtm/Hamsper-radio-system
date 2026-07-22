@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tactical Ham Radio & Weather Dashboard</title>
-  
+  <title>Tactical Ham Radio Dashboard</title>
+
   <!-- Leaflet Map CSS CDN -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Google Fonts for Tactical Look -->
+  <!-- Tactical Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <!-- External Custom CSS -->
+  <!-- External CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,18 +20,18 @@
     <div class="sidebar-left">
       <!-- Clocks -->
       <div class="card">
-        <div class="time-label">UTC TIME</div>
-        <div class="time-box" id="utc-time">00:00:00</div>
-        <div style="font-size: 10px; color: #88aa99; margin-bottom: 8px;" id="utc-date">Wed, Jul 22</div>
+        <div class="label-green">UTC</div>
+        <div class="time-main" id="utc-time">00:00:00</div>
+        <div class="date-sub" id="utc-date">Wed, Jul 22</div>
 
-        <div class="time-label">LOCAL TIME</div>
-        <div class="time-box" id="local-time" style="color: #00ccff;">00:00:00</div>
-        <div style="font-size: 10px; color: #88aa99;" id="local-date">Wed, Jul 22</div>
+        <div class="label-green" style="margin-top: 6px;">LOCAL</div>
+        <div class="time-main time-local" id="local-time">00:00:00</div>
+        <div class="date-sub" id="local-date">Wed, Jul 22</div>
       </div>
 
       <!-- Location Specs -->
       <div class="card">
-        <div class="card-title">DE - TARGET LOCATION</div>
+        <div class="card-title">DE - YOUR LOCATION <span style="float: right; color: #00ff66;">NOWRL</span></div>
         <div class="info-row">
           <span class="info-label">GRID</span>
           <span class="info-val" id="grid-val">EM73uw</span>
@@ -41,27 +41,46 @@
           <span class="info-val" id="coords-val">33.9581°N, 84.2658°W</span>
         </div>
         <div class="info-row">
-          <span class="info-label">QTH (COUNTRY)</span>
-          <span class="info-val" id="qth-val">Loading...</span>
+          <span class="info-label">QTH</span>
+          <span class="info-val" id="qth-val">GA, United States</span>
+        </div>
+        
+        <div class="sun-row">
+          <div>
+            <div class="sun-label">SUNRISE</div>
+            <div class="sun-time" id="sunrise-val">06:39</div>
+          </div>
+          <div>
+            <div class="sun-label">SUNSET</div>
+            <div class="sun-time" id="sunset-val">20:34</div>
+          </div>
+          <div>
+            <div class="sun-label">DAYLIGHT</div>
+            <div class="sun-time" style="color: #00ff66;" id="daylight-val">13h 54m</div>
+          </div>
         </div>
       </div>
 
-      <!-- Weather Panel with °C / °F Switch -->
+      <!-- Weather Section -->
       <div class="card">
-        <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="card-title-flex">
           <span>WEATHER CONDITIONS</span>
-          <!-- °C / °F Toggle Buttons -->
+          <!-- °C / °F Unit Toggle -->
           <div class="unit-toggle">
-            <button id="btn-c" class="unit-btn active" onclick="setUnit('C')">°C</button>
-            <button id="btn-f" class="unit-btn" onclick="setUnit('F')">°F</button>
+            <button id="btn-f" class="unit-btn active" onclick="setUnit('F')">°F</button>
+            <button id="btn-c" class="unit-btn" onclick="setUnit('C')">°C</button>
           </div>
         </div>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px;">
-          <div style="font-size: 28px; color: #fff; font-weight: bold;" id="temp-val">--°C</div>
-          <div style="text-align: right; font-size: 11px;">
-            <div style="color: #00ccff; font-weight: bold;" id="weather-desc">Fetching...</div>
-            <div style="color: #88aa99; margin-top: 2px;">Wind: <span style="color:#fff;" id="wind-val">-- km/h</span></div>
+
+        <div class="weather-box">
+          <div class="weather-left">
+            <span class="weather-icon">⛅</span>
+            <span class="temp-text" id="temp-val">74°F</span>
+          </div>
+          <div class="weather-right">
+            <div class="weather-desc" id="weather-desc">Partly Cloudy</div>
+            <div>Humidity: <span class="val-white" id="humidity-val">87%</span></div>
+            <div>Wind: <span class="val-white" id="wind-val">6 mph</span></div>
           </div>
         </div>
       </div>
@@ -72,60 +91,73 @@
       <div id="map"></div>
       
       <div class="map-bottom-bar">
-        <div>
-          <span style="color: #88aa99; margin-right: 5px;">MODES:</span>
+        <div class="modes-grp">
+          <span style="color: #88aa99; margin-right: 5px;">CONTACTS & SPOTS:</span>
           <span class="badge badge-cw">CW</span>
           <span class="badge badge-ssb">SSB</span>
           <span class="badge badge-ft8">FT8/FT4</span>
           <span class="badge badge-fm">FM/AM</span>
         </div>
-        <div style="color: #88aa99;">
-          BANDS: <span style="color: #ff3333;">160m</span> <span style="color: #ffaa00;">80m</span> <span style="color: #00ff66;">40m</span> <span style="color: #00ccff;">20m</span> <span style="color: #cc66ff;">10m</span>
+        <div class="bands-grp">
+          <span class="band-item" style="background:#003366;">160m</span>
+          <span class="band-item" style="background:#884400;">80m</span>
+          <span class="band-item" style="background:#006633;">40m</span>
+          <span class="band-item" style="background:#996600;">20m</span>
+          <span class="band-item" style="background:#880000;">10m</span>
         </div>
       </div>
     </div>
 
     <!-- RIGHT SIDEBAR -->
     <div class="sidebar-right">
-      <!-- Solar / Earth Real Imagery -->
+      <!-- Solar Imagery -->
       <div class="card" style="text-align: center;">
-        <div class="card-title">SOLAR & EARTH IMAGERY</div>
-        <div class="earth-container">
-          <img id="earth-img" src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0193.jpg" alt="Live Solar/Earth Image" />
+        <div class="card-title">SOLAR IMAGERY - SDO</div>
+        <div class="sun-circle-wrapper">
+          <div class="sun-circle"></div>
         </div>
+        <div class="sdo-caption" id="sdo-time">SDO/AIA 193 &nbsp; 2026-07-22 07:17:17 UT</div>
       </div>
 
+      <!-- Solar & Corona Grid -->
       <div class="card">
-        <div class="card-title">CORONA & SOLAR WIND</div>
+        <div class="card-title">CORONA & SOLAR WIND (193 Å)</div>
         <div class="grid-2x2">
           <div class="stat-box">
-            <div class="time-label">SFI</div>
+            <div class="stat-label">SFI</div>
             <div class="stat-val" style="color: #00ff66;">114</div>
           </div>
           <div class="stat-box">
-            <div class="time-label">KP INDEX</div>
+            <div class="stat-label">KP INDEX</div>
             <div class="stat-val" style="color: #00ccff;">1</div>
           </div>
           <div class="stat-box">
-            <div class="time-label">WIND</div>
+            <div class="stat-label">WIND</div>
             <div class="stat-val" style="font-size: 13px; color: #fff;">427 km/s</div>
           </div>
           <div class="stat-box">
-            <div class="time-label">BZ</div>
+            <div class="stat-label">BZ</div>
             <div class="stat-val" style="color: #ff3333;">-2 nT</div>
           </div>
         </div>
       </div>
 
+      <!-- Propagation -->
       <div class="card">
-        <div class="card-title">PROPAGATION STATUS</div>
-        <div class="info-row">
-          <span class="info-label">DAYTIME HF:</span>
-          <span class="info-val" style="color: #00ff66;">GOOD</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">NIGHTTIME HF:</span>
-          <span class="info-val" style="color: #ffaa00;">FAIR</span>
+        <div class="card-title">PROPAGATION</div>
+        <div class="prop-gauges">
+          <div class="gauge-box">
+            <div class="gauge-circle gauge-green">114</div>
+            <div class="gauge-label">SFI</div>
+          </div>
+          <div class="gauge-box">
+            <div class="gauge-circle gauge-blue">1</div>
+            <div class="gauge-label">K INDEX</div>
+          </div>
+          <div class="gauge-box">
+            <div class="gauge-circle gauge-red">8</div>
+            <div class="gauge-label">A INDEX</div>
+          </div>
         </div>
       </div>
     </div>
@@ -134,12 +166,20 @@
 
   <!-- Bottom Ticker -->
   <div class="ticker-bar">
-    DX / NOAA ALERTS &nbsp;||&nbsp; Space Weather Message Code: WARK04 &nbsp;||&nbsp; Solar Flux Stabilized &nbsp;||&nbsp; Tap anywhere on map to fetch live weather
+    <span style="color: #00ff66; font-weight: bold;">DX / NOAA ALERTS</span>
+    <span class="ticker-sep">||</span>
+    Space Weather Message Code: WARK04
+    <span class="ticker-sep">||</span>
+    Space Weather Message Code: ALTK04
+    <span class="ticker-sep">||</span>
+    Solar Flux Stabilized
+    <span class="ticker-sep">||</span>
+    Tap map to set location
   </div>
 
-  <!-- Leaflet JS Library -->
+  <!-- Leaflet JS CDN -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- External Custom JS -->
+  <!-- Custom External JS -->
   <script src="script.js"></script>
 </body>
 </html>
