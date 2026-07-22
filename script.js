@@ -1,9 +1,9 @@
 // Global Weather State
-let currentTempCelsius = 23.3; // Default
+let currentTempCelsius = 23.3; 
 let currentUnit = 'F';
 
 // -------------------------------------------------------------
-// 1. REALTIME CLOCK & UTC/LOCAL DATE
+// 1. REALTIME CLOCK
 // -------------------------------------------------------------
 function updateClocks() {
   const now = new Date();
@@ -42,7 +42,7 @@ function getMaidenhead(lat, lon) {
 }
 
 // -------------------------------------------------------------
-// 3. LEAFLET MAP INITIALIZATION & AUTO RESIZE
+// 3. LEAFLET MAP SETUP
 // -------------------------------------------------------------
 const homeLat = 33.9581;
 const homeLng = -84.2658;
@@ -84,7 +84,7 @@ let connectionLine = L.polyline([[homeLat, homeLng], [51.505, -0.09]], {
 }).addTo(map);
 
 // -------------------------------------------------------------
-// 4. COUNTRY / LOCATION SEARCH LOGIC (OSM Geocoding)
+// 4. ROBUST GEOLOCATION SEARCH (Open-Meteo Geocoding API)
 // -------------------------------------------------------------
 function doSearch() {
   const query = document.getElementById('location-search').value.trim();
@@ -93,29 +93,31 @@ function doSearch() {
   const btn = document.getElementById('search-btn');
   btn.innerText = "FINDING...";
 
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+  // Using Open-Meteo Geocoding API (Fast, Free, No CORS block)
+  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
     .then(res => res.json())
     .then(data => {
       btn.innerText = "SEARCH";
-      if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
+      if (data && data.results && data.results.length > 0) {
+        const place = data.results[0];
+        const lat = place.latitude;
+        const lon = place.longitude;
         
-        // Pan map and update dashboard
+        // Pan map & update full dashboard
         map.setView([lat, lon], 5);
         updateLocation(lat, lon);
       } else {
-        alert('Country or City not found!');
+        alert('Location not found. Please try another name.');
       }
     })
-    .catch(() => {
+    .catch(err => {
       btn.innerText = "SEARCH";
-      alert('Search failed. Please try again.');
+      alert('Error searching location.');
     });
 }
 
 // -------------------------------------------------------------
-// 5. WEATHER & LOCATION UPDATE LOGIC
+// 5. WEATHER & MASTER LOCATION UPDATE LOGIC
 // -------------------------------------------------------------
 function fetchWeather(lat, lng) {
   document.getElementById('temp-val').innerText = "--°" + currentUnit;
@@ -174,7 +176,7 @@ function updateLocation(lat, lng) {
   document.getElementById('coords-val').innerText = `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lng).toFixed(4)}°${lngDir}`;
   document.getElementById('grid-val').innerText = getMaidenhead(lat, lng);
 
-  // Reverse Geocode QTH
+  // Reverse Geocode QTH (Fetch Country Name)
   document.getElementById('qth-val').innerText = "Locating...";
   fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
     .then(res => res.json())
@@ -195,7 +197,7 @@ function updateLocation(lat, lng) {
   fetchWeather(lat, lng);
 }
 
-// Map Tap Listener
+// Map Tap Event
 map.on('click', function(e) {
   updateLocation(e.latlng.lat, e.latlng.lng);
 });
