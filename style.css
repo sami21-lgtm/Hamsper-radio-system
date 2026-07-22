@@ -371,9 +371,7 @@ html, body {
   background: #080c0a !important;
 }
 
-/* ========================================================= */
-/* 📱 MOBILE & TABLET RESPONSIVE FIXES (Screens <= 850px)    */
-/* ========================================================= */
+
 @media screen and (max-width: 850px) {
   html, body {
     overflow-y: auto; /* Allow scrolling on phone */
