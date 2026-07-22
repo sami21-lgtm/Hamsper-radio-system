@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tactical Ham & Solar Dashboard</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- External Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- LEFT COLUMN -->
+    <div class="column">
+      
+      <!-- Clocks Card -->
+      <div class="card">
+        <div class="clock-box">
+          <div class="clock-title">UTC</div>
+          <div class="clock-time" id="utc-time">--:--:--</div>
+          <div class="clock-date" id="utc-date">Loading...</div>
+        </div>
+        <div>
+          <div class="clock-title">LOCAL</div>
+          <div class="clock-time" id="local-time">--:--:--</div>
+          <div class="clock-date" id="local-date">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Location Card -->
+      <div class="card">
+        <div class="info-row highlight-border">
+          <span class="info-label">DE - YOUR LOCATION</span>
+          <span class="text-yellow" style="font-weight: bold;">NOWRL</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">GRID</span>
+          <span class="text-cyan">EM73uw</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">COORDS</span>
+          <span class="info-val">33.9501°N, 84.2650°W</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">QTH</span>
+          <span class="info-val">GA, United States</span>
+        </div>
+        <div class="info-row" style="margin-top: 6px;">
+          <span class="text-yellow">SUNRISE <br><b class="text-white" id="sunrise-time">06:39</b></span>
+          <span class="text-purple">SUNSET <br><b class="text-white" id="sunset-time">20:34</b></span>
+          <span class="text-cyan">DAYLIGHT <br><b class="text-green">13h 54m</b></span>
+        </div>
+      </div>
+
+      <!-- Weather Card (Live Open-Meteo API) -->
+      <div class="card">
+        <div class="weather-container">
+          <div class="weather-main">
+            <span style="font-size: 2.2rem;" id="weather-icon">🌦️</span>
+            <div>
+              <div class="temp-big"><span id="temp-val">--</span>° <span class="temp-unit">F</span></div>
+              <div class="weather-desc" id="weather-condition">Loading weather...</div>
+            </div>
+          </div>
+          <div class="weather-details">
+            <div>HUMIDITY <b class="text-white" id="humidity-val">--%</b></div>
+            <div>WIND <b class="text-white" id="wind-val">-- mph</b></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CENTER MAP AREA -->
+    <div class="card map-card">
+      <div id="map"></div>
+
+      <!-- Map Legend Overlay -->
+      <div class="map-legend">
+        <div class="legend-group">
+          <span class="text-muted">CONTACTS & SPOTS:</span>
+          <span class="badge bg-blue">CW</span>
+          <span class="badge bg-red">SSB</span>
+          <span class="badge bg-green">FT8/FT4</span>
+          <span class="badge bg-amber">FM/AM</span>
+        </div>
+        <div class="legend-group">
+          <span class="c-160m">■ 160m</span>
+          <span class="c-80m">■ 80m</span>
+          <span class="c-40m">■ 40m</span>
+          <span class="c-20m">■ 20m</span>
+          <span class="c-10m">■ 10m</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="column">
+      
+      <!-- Solar Imagery Card (Live SDO NASA Stream) -->
+      <div class="card center-content">
+        <div class="info-label full-width">SOLAR IMAGERY - SDO</div>
+        <div class="solar-img-container">
+          <img id="sdo-img" class="solar-img" src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0193.jpg" alt="Solar Image SDO">
+        </div>
+        <select class="dropdown-select" id="sdo-select">
+          <option value="latest_512_0193.jpg">Corona & Solar Wind (193 Å)</option>
+          <option value="latest_512_0304.jpg">Chromosphere (304 Å)</option>
+          <option value="latest_512_HMII.jpg">Magnetogram (SDO/HMI)</option>
+        </select>
+
+        <div class="solar-grid">
+          <div class="gauge-box">
+            <div class="gauge-lbl">SFI</div>
+            <div class="gauge-val" id="sfi-val">114</div>
+          </div>
+          <div class="gauge-box">
+            <div class="gauge-lbl">KP INDEX</div>
+            <div class="gauge-val text-green" id="kp-val">--</div>
+          </div>
+          <div class="gauge-box">
+            <div class="gauge-lbl">WIND</div>
+            <div class="gauge-val text-cyan" style="font-size:0.9rem;" id="wind-solar">427 km/s</div>
+          </div>
+          <div class="gauge-box">
+            <div class="gauge-lbl">BZ</div>
+            <div class="gauge-val text-red">-2 nT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Propagation Gauges Card -->
+      <div class="card">
+        <div class="info-label">PROPAGATION</div>
+        <div class="gauge-grid">
+          
+          <div>
+            <svg class="arc-gauge" viewBox="0 0 100 50">
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1c3823" stroke-width="8" />
+              <path id="arc-sfi" d="M 10 50 A 40 40 0 0 1 65 15" fill="none" stroke="#22c55e" stroke-width="8" />
+            </svg>
+            <div class="gauge-val">114</div>
+            <div class="gauge-lbl">SFI</div>
+          </div>
+
+          <div>
+            <svg class="arc-gauge" viewBox="0 0 100 50">
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1c3823" stroke-width="8" />
+              <path id="arc-k" d="M 10 50 A 40 40 0 0 1 40 22" fill="none" stroke="#eab308" stroke-width="8" />
+            </svg>
+            <div class="gauge-val" id="k-gauge-val">2</div>
+            <div class="gauge-lbl">K INDEX</div>
+          </div>
+
+          <div>
+            <svg class="arc-gauge" viewBox="0 0 100 50">
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1c3823" stroke-width="8" />
+              <path d="M 10 50 A 40 40 0 0 1 75 22" fill="none" stroke="#ef4444" stroke-width="8" />
+            </svg>
+            <div class="gauge-val">8</div>
+            <div class="gauge-lbl">A INDEX</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- BOTTOM ALERT TICKER (Live NOAA SWPC Alert API) -->
+  <div class="ticker-bar">
+    <span class="ticker-label">DX / NOAA ALERTS</span>
+    <div class="ticker-text" id="alert-ticker">
+      Fetching latest space weather and geomagnetic alerts from NOAA SWPC API...
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- External Custom JS -->
+  <script src="script.js"></script>
+</body>
+</html>
