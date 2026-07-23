@@ -1,6 +1,46 @@
-// Global Weather State
-let currentTempCelsius = 23.3; 
-let currentUnit = 'F';
+// 195 World Countries List for Dynamic Auto-complete
+const allCountries = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+  "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+  "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+  "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+  "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador",
+  "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France",
+  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau",
+  "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland",
+  "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "North Korea",
+  "South Korea", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein",
+  "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania",
+  "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway",
+  "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland",
+  "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+  "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands",
+  "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan",
+  "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City",
+  "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+];
+
+// Populate Countries into Datalist on Load
+function initCountryDatalist() {
+  const datalist = document.getElementById('country-list');
+  if (datalist) {
+    allCountries.forEach(country => {
+      const option = document.createElement('option');
+      option.value = country;
+      datalist.appendChild(option);
+    });
+  }
+}
+initCountryDatalist();
+
+// Default Home Location: Dhaka, Bangladesh
+const homeLat = 23.8103;
+const homeLng = 90.4125;
+
+let currentTempCelsius = 28.0; 
+let currentUnit = 'C';
 
 // -------------------------------------------------------------
 // 1. REALTIME CLOCK
@@ -44,13 +84,10 @@ function getMaidenhead(lat, lon) {
 // -------------------------------------------------------------
 // 3. LEAFLET MAP SETUP
 // -------------------------------------------------------------
-const homeLat = 33.9581;
-const homeLng = -84.2658;
-
 const map = L.map('map', {
   zoomControl: true,
   attributionControl: false
-}).setView([20, 0], 2);
+}).setView([homeLat, homeLng], 5);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 18,
@@ -63,20 +100,20 @@ setTimeout(() => {
 
 // Markers
 L.circleMarker([homeLat, homeLng], {
-  color: '#ff3333',
-  fillColor: '#ff3333',
+  color: '#00ff66',
+  fillColor: '#00ff66',
   fillOpacity: 1,
-  radius: 5
+  radius: 6
 }).addTo(map);
 
-let targetMarker = L.circleMarker([51.505, -0.09], {
+let targetMarker = L.circleMarker([35.6762, 139.6503], {
   color: '#00ccff',
   fillColor: '#00ccff',
   fillOpacity: 1,
   radius: 5
 }).addTo(map);
 
-let connectionLine = L.polyline([[homeLat, homeLng], [51.505, -0.09]], {
+let connectionLine = L.polyline([[homeLat, homeLng], [35.6762, 139.6503]], {
   color: '#ff3333',
   weight: 1.5,
   dashArray: '4, 4',
@@ -84,7 +121,7 @@ let connectionLine = L.polyline([[homeLat, homeLng], [51.505, -0.09]], {
 }).addTo(map);
 
 // -------------------------------------------------------------
-// 4. ROBUST GEOLOCATION SEARCH (Open-Meteo Geocoding API)
+// 4. GEOLOCATION SEARCH (Open-Meteo Geocoding API)
 // -------------------------------------------------------------
 function doSearch() {
   const query = document.getElementById('location-search').value.trim();
@@ -93,7 +130,6 @@ function doSearch() {
   const btn = document.getElementById('search-btn');
   btn.innerText = "FINDING...";
 
-  // Using Open-Meteo Geocoding API (Fast, Free, No CORS block)
   fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
     .then(res => res.json())
     .then(data => {
@@ -103,14 +139,13 @@ function doSearch() {
         const lat = place.latitude;
         const lon = place.longitude;
         
-        // Pan map & update full dashboard
         map.setView([lat, lon], 5);
         updateLocation(lat, lon);
       } else {
         alert('Location not found. Please try another name.');
       }
     })
-    .catch(err => {
+    .catch(() => {
       btn.innerText = "SEARCH";
       alert('Error searching location.');
     });
@@ -131,7 +166,7 @@ function fetchWeather(lat, lng) {
         const wind = Math.round(data.current_weather.windspeed);
         
         document.getElementById('wind-val').innerText = `${wind} km/h`;
-        document.getElementById('humidity-val').innerText = `${Math.floor(Math.random() * 25) + 65}%`;
+        document.getElementById('humidity-val').innerText = `${Math.floor(Math.random() * 20) + 70}%`;
         document.getElementById('weather-desc').innerText = getWeatherText(data.current_weather.weathercode);
         
         renderTemp();
@@ -176,14 +211,14 @@ function updateLocation(lat, lng) {
   document.getElementById('coords-val').innerText = `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lng).toFixed(4)}°${lngDir}`;
   document.getElementById('grid-val').innerText = getMaidenhead(lat, lng);
 
-  // Reverse Geocode QTH (Fetch Country Name)
+  // Reverse Geocode QTH
   document.getElementById('qth-val').innerText = "Locating...";
   fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
     .then(res => res.json())
     .then(data => {
       if (data && data.address) {
         const addr = data.address;
-        const city = addr.city || addr.town || addr.state || "Remote";
+        const city = addr.city || addr.town || addr.state || addr.county || "Selected Area";
         const country = addr.country || "";
         document.getElementById('qth-val').innerText = country ? `${city}, ${country}` : city;
       } else {
@@ -202,5 +237,5 @@ map.on('click', function(e) {
   updateLocation(e.latlng.lat, e.latlng.lng);
 });
 
-// Initial Load
+// Initial Load: Bangladesh
 updateLocation(homeLat, homeLng);
