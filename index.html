@@ -22,41 +22,41 @@
       <div class="card">
         <div class="label-green">UTC</div>
         <div class="time-main" id="utc-time">00:00:00</div>
-        <div class="date-sub" id="utc-date">Wed, Jul 22</div>
+        <div class="date-sub" id="utc-date">Thu, Jul 23</div>
 
         <div class="label-green" style="margin-top: 6px;">LOCAL</div>
         <div class="time-main time-local" id="local-time">00:00:00</div>
-        <div class="date-sub" id="local-date">Wed, Jul 22</div>
+        <div class="date-sub" id="local-date">Thu, Jul 23</div>
       </div>
 
-      <!-- Location Specs -->
+      <!-- Location Specs (Default: Bangladesh) -->
       <div class="card">
         <div class="card-title">DE - YOUR LOCATION <span style="float: right; color: #00ff66;">NOWRL</span></div>
         <div class="info-row">
           <span class="info-label">GRID</span>
-          <span class="info-val" id="grid-val">EM73uw</span>
+          <span class="info-val" id="grid-val">NL3381</span>
         </div>
         <div class="info-row">
           <span class="info-label">COORDS</span>
-          <span class="info-val" id="coords-val">33.9581°N, 84.2658°W</span>
+          <span class="info-val" id="coords-val">23.8103°N, 90.4125°E</span>
         </div>
         <div class="info-row">
           <span class="info-label">QTH</span>
-          <span class="info-val" id="qth-val">GA, United States</span>
+          <span class="info-val" id="qth-val">Dhaka, Bangladesh</span>
         </div>
         
         <div class="sun-row">
           <div>
             <div class="sun-label">SUNRISE</div>
-            <div class="sun-time" id="sunrise-val">06:39</div>
+            <div class="sun-time" id="sunrise-val">05:24</div>
           </div>
           <div>
             <div class="sun-label">SUNSET</div>
-            <div class="sun-time" id="sunset-val">20:34</div>
+            <div class="sun-time" id="sunset-val">18:48</div>
           </div>
           <div>
             <div class="sun-label">DAYLIGHT</div>
-            <div class="sun-time" style="color: #00ff66;" id="daylight-val">13h 54m</div>
+            <div class="sun-time" style="color: #00ff66;" id="daylight-val">13h 24m</div>
           </div>
         </div>
       </div>
@@ -65,22 +65,21 @@
       <div class="card">
         <div class="card-title-flex">
           <span>WEATHER CONDITIONS</span>
-          <!-- °C / °F Unit Toggle -->
           <div class="unit-toggle">
-            <button id="btn-f" class="unit-btn active" onclick="setUnit('F')">°F</button>
-            <button id="btn-c" class="unit-btn" onclick="setUnit('C')">°C</button>
+            <button id="btn-f" class="unit-btn" onclick="setUnit('F')">°F</button>
+            <button id="btn-c" class="unit-btn active" onclick="setUnit('C')">°C</button>
           </div>
         </div>
 
         <div class="weather-box">
           <div class="weather-left">
             <span class="weather-icon">⛅</span>
-            <span class="temp-text" id="temp-val">74°F</span>
+            <span class="temp-text" id="temp-val">28°C</span>
           </div>
           <div class="weather-right">
             <div class="weather-desc" id="weather-desc">Partly Cloudy</div>
-            <div>Humidity: <span class="val-white" id="humidity-val">87%</span></div>
-            <div>Wind: <span class="val-white" id="wind-val">6 mph</span></div>
+            <div>Humidity: <span class="val-white" id="humidity-val">82%</span></div>
+            <div>Wind: <span class="val-white" id="wind-val">12 km/h</span></div>
           </div>
         </div>
       </div>
@@ -88,30 +87,10 @@
 
     <!-- CENTER MAP PANEL -->
     <div class="map-container">
-      <!-- Search Overlay Box with Country Selection Dropdown -->
+      <!-- Search Overlay Box -->
       <div class="map-search-box">
         <input type="text" id="location-search" list="country-list" placeholder="Select or type country/city..." onkeydown="if(event.key==='Enter') doSearch()" />
-        
-        <!-- Dropdown Options List -->
-        <datalist id="country-list">
-          <option value="Japan"></option>
-          <option value="Bangladesh"></option>
-          <option value="United States"></option>
-          <option value="Germany"></option>
-          <option value="United Kingdom"></option>
-          <option value="India"></option>
-          <option value="Australia"></option>
-          <option value="Canada"></option>
-          <option value="China"></option>
-          <option value="Brazil"></option>
-          <option value="France"></option>
-          <option value="Italy"></option>
-          <option value="Saudi Arabia"></option>
-          <option value="United Arab Emirates"></option>
-          <option value="Russia"></option>
-          <option value="South Korea"></option>
-        </datalist>
-
+        <datalist id="country-list"></datalist>
         <button id="search-btn" onclick="doSearch()">SEARCH</button>
       </div>
 
@@ -143,7 +122,7 @@
         <div class="sun-circle-wrapper">
           <div class="sun-circle"></div>
         </div>
-        <div class="sdo-caption" id="sdo-time">SDO/AIA 193 &nbsp; 2026-07-22 07:17:17 UT</div>
+        <div class="sdo-caption" id="sdo-time">SDO/AIA 193 &nbsp; 2026-07-23 07:54:00 UT</div>
       </div>
 
       <!-- Solar & Corona Grid -->
@@ -191,17 +170,20 @@
 
   </div>
 
-  <!-- Bottom Ticker -->
+  <!-- Bottom Ticker Bar with Developer Credit -->
   <div class="ticker-bar">
-    <span style="color: #00ff66; font-weight: bold;">DX / NOAA ALERTS</span>
-    <span class="ticker-sep">||</span>
-    Space Weather Message Code: WARK04
-    <span class="ticker-sep">||</span>
-    Space Weather Message Code: ALTK04
-    <span class="ticker-sep">||</span>
-    Solar Flux Stabilized
-    <span class="ticker-sep">||</span>
-    Search country or tap map to set location
+    <div class="ticker-text">
+      <span style="color: #00ff66; font-weight: bold;">DX / NOAA ALERTS</span>
+      <span class="ticker-sep">||</span>
+      Space Weather Message Code: WARK04
+      <span class="ticker-sep">||</span>
+      Solar Flux Stabilized
+      <span class="ticker-sep">||</span>
+      Location: Dhaka, Bangladesh
+    </div>
+    <div class="developer-credit">
+      DEVELOPED BY MD. EMTIAZ HOSSAIN SAMI
+    </div>
   </div>
 
   <!-- Leaflet JS CDN -->
