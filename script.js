@@ -1,4 +1,8 @@
-// 195 World Countries List for Dynamic Search Auto-complete
+// =============================================================
+// TACTICAL HAM RADIO SYSTEM - FULL SCRIPT.JS
+// =============================================================
+
+// 1. 195 World Countries List for Dynamic Search Auto-complete
 const allCountries = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
   "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
@@ -14,7 +18,7 @@ const allCountries = [
   "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
   "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway",
   "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland",
-  "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+  "Portugal", "Qatar", "Romania", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
   "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands",
   "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan",
   "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
@@ -26,6 +30,7 @@ const allCountries = [
 function initCountryDatalist() {
   const datalist = document.getElementById('country-list');
   if (datalist) {
+    datalist.innerHTML = '';
     allCountries.forEach(country => {
       const option = document.createElement('option');
       option.value = country;
@@ -33,7 +38,6 @@ function initCountryDatalist() {
     });
   }
 }
-initCountryDatalist();
 
 // Default Home Location: Dhaka, Bangladesh
 const homeLat = 23.8103;
@@ -43,24 +47,27 @@ let currentTempCelsius = 28.0;
 let currentUnit = 'C';
 
 // -------------------------------------------------------------
-// 1. REALTIME CLOCK
+// 2. REALTIME CLOCK (UTC & LOCAL)
 // -------------------------------------------------------------
 function updateClocks() {
   const now = new Date();
   
   // UTC Time
-  document.getElementById('utc-time').innerText = now.toISOString().substr(11, 8);
-  document.getElementById('utc-date').innerText = now.toUTCString().substr(0, 11);
+  const utcTimeEl = document.getElementById('utc-time');
+  const utcDateEl = document.getElementById('utc-date');
+  if (utcTimeEl) utcTimeEl.innerText = now.toISOString().substr(11, 8);
+  if (utcDateEl) utcDateEl.innerText = now.toUTCString().substr(0, 11);
   
   // Local Time
-  document.getElementById('local-time').innerText = now.toTimeString().substr(0, 8);
-  document.getElementById('local-date').innerText = now.toDateString().substr(0, 10);
+  const localTimeEl = document.getElementById('local-time');
+  const localDateEl = document.getElementById('local-date');
+  if (localTimeEl) localTimeEl.innerText = now.toTimeString().substr(0, 8);
+  if (localDateEl) localDateEl.innerText = now.toDateString().substr(0, 10);
 }
 setInterval(updateClocks, 1000);
-updateClocks();
 
 // -------------------------------------------------------------
-// 2. MAIDENHEAD GRID CALCULATOR
+// 3. MAIDENHEAD GRID CALCULATOR
 // -------------------------------------------------------------
 function getMaidenhead(lat, lon) {
   let l1 = "ABCDEFGHIJKLMNOPQR";
@@ -82,14 +89,14 @@ function getMaidenhead(lat, lon) {
 }
 
 // -------------------------------------------------------------
-// 3. LEAFLET MAP SETUP (Vibrant & Colorful Voyager Tile)
+// 4. LEAFLET MAP SETUP (COLORFUL VOYAGER TILES)
 // -------------------------------------------------------------
 const map = L.map('map', {
   zoomControl: true,
   attributionControl: false
 }).setView([homeLat, homeLng], 5);
 
-// Modern Vibrant Colorful Map Tiles
+// Vibrant Colorful CARTO Voyager Tiles
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
   maxZoom: 18,
   subdomains: 'abcd'
@@ -99,7 +106,7 @@ setTimeout(() => {
   map.invalidateSize();
 }, 300);
 
-// Markers
+// Home Marker (Green)
 L.circleMarker([homeLat, homeLng], {
   color: '#00cc44',
   fillColor: '#00ff66',
@@ -107,6 +114,7 @@ L.circleMarker([homeLat, homeLng], {
   radius: 7
 }).addTo(map);
 
+// Target Marker (Cyan)
 let targetMarker = L.circleMarker([35.6762, 139.6503], {
   color: '#0088ff',
   fillColor: '#00ccff',
@@ -114,6 +122,7 @@ let targetMarker = L.circleMarker([35.6762, 139.6503], {
   radius: 6
 }).addTo(map);
 
+// Connection Line (Red Dashed)
 let connectionLine = L.polyline([[homeLat, homeLng], [35.6762, 139.6503]], {
   color: '#ff3333',
   weight: 2,
@@ -122,19 +131,21 @@ let connectionLine = L.polyline([[homeLat, homeLng], [35.6762, 139.6503]], {
 }).addTo(map);
 
 // -------------------------------------------------------------
-// 4. GEOLOCATION SEARCH (Open-Meteo Geocoding API)
+// 5. GEOLOCATION SEARCH (Open-Meteo API)
 // -------------------------------------------------------------
 function doSearch() {
-  const query = document.getElementById('location-search').value.trim();
+  const inputEl = document.getElementById('location-search');
+  if (!inputEl) return;
+  const query = inputEl.value.trim();
   if (!query) return;
 
   const btn = document.getElementById('search-btn');
-  btn.innerText = "FINDING...";
+  if (btn) btn.innerText = "FINDING...";
 
   fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
     .then(res => res.json())
     .then(data => {
-      btn.innerText = "SEARCH";
+      if (btn) btn.innerText = "SEARCH";
       if (data && data.results && data.results.length > 0) {
         const place = data.results[0];
         const lat = place.latitude;
@@ -147,34 +158,64 @@ function doSearch() {
       }
     })
     .catch(() => {
-      btn.innerText = "SEARCH";
+      if (btn) btn.innerText = "SEARCH";
       alert('Error searching location.');
     });
 }
 
 // -------------------------------------------------------------
-// 5. WEATHER & MASTER LOCATION UPDATE LOGIC
+// 6. WEATHER, SUNRISE, SUNSET & DAYLIGHT DATA FETCH
 // -------------------------------------------------------------
 function fetchWeather(lat, lng) {
-  document.getElementById('temp-val').innerText = "--°" + currentUnit;
-  document.getElementById('weather-desc').innerText = "Updating...";
+  const tempEl = document.getElementById('temp-val');
+  const descEl = document.getElementById('weather-desc');
+  if (tempEl) tempEl.innerText = "--°" + currentUnit;
+  if (descEl) descEl.innerText = "Updating...";
 
-  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+  // Weather API with local timezone sunrise/sunset calculation
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&daily=sunrise,sunset&timezone=auto`)
     .then(res => res.json())
     .then(data => {
+      // Update Current Weather
       if (data && data.current_weather) {
         currentTempCelsius = data.current_weather.temperature;
         const wind = Math.round(data.current_weather.windspeed);
         
-        document.getElementById('wind-val').innerText = `${wind} km/h`;
-        document.getElementById('humidity-val').innerText = `${Math.floor(Math.random() * 20) + 70}%`;
-        document.getElementById('weather-desc').innerText = getWeatherText(data.current_weather.weathercode);
+        const windEl = document.getElementById('wind-val');
+        const humEl = document.getElementById('humidity-val');
+        if (windEl) windEl.innerText = `${wind} km/h`;
+        if (humEl) humEl.innerText = `${Math.floor(Math.random() * 20) + 70}%`;
+        if (descEl) descEl.innerText = getWeatherText(data.current_weather.weathercode);
         
         renderTemp();
       }
+
+      // Update Dynamic Sunrise, Sunset & Daylight Time
+      if (data && data.daily && data.daily.sunrise && data.daily.sunset) {
+        const sunriseIso = data.daily.sunrise[0];
+        const sunsetIso = data.daily.sunset[0];
+
+        const srTime = sunriseIso.split('T')[1];
+        const ssTime = sunsetIso.split('T')[1];
+
+        const srEl = document.getElementById('sunrise-val');
+        const ssEl = document.getElementById('sunset-val');
+        if (srEl) srEl.innerText = srTime;
+        if (ssEl) ssEl.innerText = ssTime;
+
+        // Calculate Daylight duration
+        const srDate = new Date(sunriseIso);
+        const ssDate = new Date(sunsetIso);
+        const diffMs = ssDate - srDate;
+        const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        const dlEl = document.getElementById('daylight-val');
+        if (dlEl) dlEl.innerText = `${diffHrs}h ${diffMins}m`;
+      }
     })
     .catch(() => {
-      document.getElementById('weather-desc').innerText = "Clear";
+      if (descEl) descEl.innerText = "Clear";
     });
 }
 
@@ -187,21 +228,29 @@ function getWeatherText(code) {
 }
 
 function renderTemp() {
+  const tempEl = document.getElementById('temp-val');
+  if (!tempEl) return;
+  
   if (currentUnit === 'F') {
     const tempF = Math.round((currentTempCelsius * 9/5) + 32);
-    document.getElementById('temp-val').innerText = `${tempF}°F`;
+    tempEl.innerText = `${tempF}°F`;
   } else {
-    document.getElementById('temp-val').innerText = `${Math.round(currentTempCelsius)}°C`;
+    tempEl.innerText = `${Math.round(currentTempCelsius)}°C`;
   }
 }
 
 function setUnit(unit) {
   currentUnit = unit;
-  document.getElementById('btn-f').classList.toggle('active', unit === 'F');
-  document.getElementById('btn-c').classList.toggle('active', unit === 'C');
+  const btnF = document.getElementById('btn-f');
+  const btnC = document.getElementById('btn-c');
+  if (btnF) btnF.classList.toggle('active', unit === 'F');
+  if (btnC) btnC.classList.toggle('active', unit === 'C');
   renderTemp();
 }
 
+// -------------------------------------------------------------
+// 7. MASTER LOCATION UPDATE FUNCTION
+// -------------------------------------------------------------
 function updateLocation(lat, lng) {
   targetMarker.setLatLng([lat, lng]);
   connectionLine.setLatLngs([[homeLat, homeLng], [lat, lng]]);
@@ -209,34 +258,45 @@ function updateLocation(lat, lng) {
   // Coords & Grid
   const latDir = lat >= 0 ? 'N' : 'S';
   const lngDir = lng >= 0 ? 'E' : 'W';
-  document.getElementById('coords-val').innerText = `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lng).toFixed(4)}°${lngDir}`;
-  document.getElementById('grid-val').innerText = getMaidenhead(lat, lng);
+  const coordsEl = document.getElementById('coords-val');
+  const gridEl = document.getElementById('grid-val');
+  
+  if (coordsEl) coordsEl.innerText = `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lng).toFixed(4)}°${lngDir}`;
+  if (gridEl) gridEl.innerText = getMaidenhead(lat, lng);
 
   // Reverse Geocode QTH
-  document.getElementById('qth-val').innerText = "Locating...";
+  const qthEl = document.getElementById('qth-val');
+  if (qthEl) qthEl.innerText = "Locating...";
+
   fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
     .then(res => res.json())
     .then(data => {
-      if (data && data.address) {
+      if (data && data.address && qthEl) {
         const addr = data.address;
         const city = addr.city || addr.town || addr.state || addr.county || "Selected Area";
         const country = addr.country || "";
-        document.getElementById('qth-val').innerText = country ? `${city}, ${country}` : city;
-      } else {
-        document.getElementById('qth-val').innerText = "Ocean / Remote Location";
+        qthEl.innerText = country ? `${city}, ${country}` : city;
+      } else if (qthEl) {
+        qthEl.innerText = "Ocean / Remote Location";
       }
     })
     .catch(() => {
-      document.getElementById('qth-val').innerText = "Selected Location";
+      if (qthEl) qthEl.innerText = "Selected Location";
     });
 
+  // Dynamic Weather & Sunrise/Sunset Fetch
   fetchWeather(lat, lng);
 }
 
-// Map Tap Event
+// -------------------------------------------------------------
+// 8. EVENT LISTENERS & INITIALIZATION
+// -------------------------------------------------------------
 map.on('click', function(e) {
   updateLocation(e.latlng.lat, e.latlng.lng);
 });
 
-// Initial Load: Bangladesh
-updateLocation(homeLat, homeLng);
+document.addEventListener("DOMContentLoaded", function() {
+  initCountryDatalist();
+  updateClocks();
+  updateLocation(homeLat, homeLng);
+});
