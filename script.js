@@ -42,9 +42,7 @@ const homeLng = 90.4125;
 let currentTempCelsius = 28.0; 
 let currentUnit = 'C';
 
-// -------------------------------------------------------------
-// 1. REALTIME CLOCK
-// -------------------------------------------------------------
+
 function updateClocks() {
   const now = new Date();
   
@@ -59,9 +57,7 @@ function updateClocks() {
 setInterval(updateClocks, 1000);
 updateClocks();
 
-// -------------------------------------------------------------
-// 2. MAIDENHEAD GRID CALCULATOR
-// -------------------------------------------------------------
+
 function getMaidenhead(lat, lon) {
   let l1 = "ABCDEFGHIJKLMNOPQR";
   let l2 = "abcdefghijklmnopqrstuvwx";
