@@ -1,4 +1,4 @@
-// 195 World Countries List for Dynamic Auto-complete
+// 195 World Countries List for Dynamic Search Auto-complete
 const allCountries = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
   "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
@@ -42,7 +42,9 @@ const homeLng = 90.4125;
 let currentTempCelsius = 28.0; 
 let currentUnit = 'C';
 
-
+// -------------------------------------------------------------
+// 1. REALTIME CLOCK
+// -------------------------------------------------------------
 function updateClocks() {
   const now = new Date();
   
@@ -57,7 +59,9 @@ function updateClocks() {
 setInterval(updateClocks, 1000);
 updateClocks();
 
-
+// -------------------------------------------------------------
+// 2. MAIDENHEAD GRID CALCULATOR
+// -------------------------------------------------------------
 function getMaidenhead(lat, lon) {
   let l1 = "ABCDEFGHIJKLMNOPQR";
   let l2 = "abcdefghijklmnopqrstuvwx";
@@ -78,42 +82,43 @@ function getMaidenhead(lat, lon) {
 }
 
 // -------------------------------------------------------------
-// 3. LEAFLET MAP SETUP
+// 3. LEAFLET MAP SETUP (Vibrant & Colorful Voyager Tile)
 // -------------------------------------------------------------
 const map = L.map('map', {
   zoomControl: true,
   attributionControl: false
 }).setView([homeLat, homeLng], 5);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+// Modern Vibrant Colorful Map Tiles
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
   maxZoom: 18,
   subdomains: 'abcd'
 }).addTo(map);
 
 setTimeout(() => {
   map.invalidateSize();
-}, 250);
+}, 300);
 
 // Markers
 L.circleMarker([homeLat, homeLng], {
-  color: '#00ff66',
+  color: '#00cc44',
   fillColor: '#00ff66',
+  fillOpacity: 1,
+  radius: 7
+}).addTo(map);
+
+let targetMarker = L.circleMarker([35.6762, 139.6503], {
+  color: '#0088ff',
+  fillColor: '#00ccff',
   fillOpacity: 1,
   radius: 6
 }).addTo(map);
 
-let targetMarker = L.circleMarker([35.6762, 139.6503], {
-  color: '#00ccff',
-  fillColor: '#00ccff',
-  fillOpacity: 1,
-  radius: 5
-}).addTo(map);
-
 let connectionLine = L.polyline([[homeLat, homeLng], [35.6762, 139.6503]], {
   color: '#ff3333',
-  weight: 1.5,
-  dashArray: '4, 4',
-  opacity: 0.8
+  weight: 2,
+  dashArray: '5, 5',
+  opacity: 0.9
 }).addTo(map);
 
 // -------------------------------------------------------------
