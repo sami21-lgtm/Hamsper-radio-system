@@ -10,7 +10,7 @@ html, body {
   width: 100%;
   background-color: #050807;
   color: #00ff66;
-  overflow: hidden; /* ডেস্কটপে অনাকাঙ্ক্ষিত স্ক্রোলবার বন্ধ রাখবে */
+  overflow: hidden; 
 }
 
 /* Dashboard Grid Layout (Full Screen Height) */
